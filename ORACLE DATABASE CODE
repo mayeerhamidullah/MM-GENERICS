@@ -1,0 +1,33 @@
+                                                                        ORACLE DATABASE CODE
+                                                                       -----------------------
+
+A STORED PROCEDURE TO INSERT TABLET DETAILS INTO PURCHASE_TABLE AND WE ARE INVOKING THAT TABLE DATA INTO customer_sale_retrieve.java
+*************************************************************************************************************************************
+
+
+
+create or replace procedure p_insert(p_comp varchar2,p_tabname varchar2,
+p_pack varchar2,p_batch varchar2,p_expire varchar2,p_mrp number,p_rate number,p_salerate number) is
+BEGIN
+insert into purchase_table values(p_comp,p_tabname,p_pack,p_batch,p_expire,p_mrp,p_rate,p_salerate);
+END;
+/
+
+
+
+A STORED PROCEDURE TO INSERT DATA INTO CUSTOMER_SALE TABLE FROM customersalesslip.html page PRESCRIBED DOCTOR,PATIENT PHONE NO,TABLET NAME,GST PERCENTAGE AS INPUT PARAMETERS AND OTHER AS OUTPUT PARAMETERS.
+**************************************************************************************************************************************************************************************************************
+
+create or replace procedure  p_gst(doctor in varchar2,phoneno in number,p_tabname in varchar2 ,x in number,p_qty in number,p_pack out varchar2,p_expire out varchar2,p_mrp out number,p_amount out number,w out number)
+is
+y number;
+p_rate number;
+z number;
+begin
+select rate,pack,expire,mrp into p_rate,p_pack,p_expire,p_mrp from purchase_table where tabname=p_tabname;
+y:=(x*(1/100)*nvl(p_rate,0))*nvl(p_qty,0);
+w:=nvl(p_rate,0)+(0.55*nvl(p_rate,0));
+p_amount:=nvl(p_qty,0)*nvl(w,0);
+INSERT INTO CUSTOMER_SALE(DOCTOR,PHONENO,PRODUCT,GST_PERCE,PACK,EXPIRE,QTY,RATE,AMOUNT,MRP,GST_VALUE) VALUES(doctor,phoneno,p_tabname,x,p_pack,p_expire,p_qty,w,p_amount,p_mrp,y);
+end;
+/
