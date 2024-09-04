@@ -1,0 +1,144 @@
+                                                                 MM Generics
+                                                                -------------
+PURCHASE.HTML
+*************
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>purchaseregister</title>
+</head>
+<body bgcolor=violet>
+<center>
+<form  action="Tablet_Purchase" method="post" ><br><br>
+          <h2>PLEASE REGISTER PURCHASE DETAILS HERE</h2>
+         
+          COMPANY: <input type=text name=company><br><br>
+          TABLET NAME: <input type=text name=tabname><br><br>
+      PACK: <input type=text name=pack><br><br>
+      BATCH: <input type=text name=batch><br><br>
+      EXPIRE: <input type=text name=expire><br><br>
+      MRP: <input type=text name=mrp><br><br>
+      RATE: <input type=text name=rate><br><br>
+      SALERATE: <input type=text name=salerate><br><br>
+      
+      <input type="submit" value=register>            <input type="reset" value=reset>
+<h2>VIEW THE TABLET DETAILS</h2>
+<a href=retrieving.html><h2>VIEW</h2></a><br>
+<h2>TABLETS SALES</h2>
+<a href=salesregister.html><h2>SALES</h2></a>
+
+</form>
+</center>
+</body>
+</html>
+
+
+
+ Oracle Database Code
+---------------------
+
+
+  A stored procedure to insert data into purchase_table table
+*************************************************************                         
+
+create or replace procedure p_insert(p_comp varchar2,p_tabname varchar2,
+p_pack varchar2,p_batch varchar2,p_expire varchar2,p_mrp number,p_rate number,p_salerate number) is
+BEGIN
+insert into purchase_table values(p_comp,p_tabname,p_pack,p_batch,p_expire,p_mrp,p_rate,p_salerate);
+END;
+/
+
+
+
+
+
+Java servlets
+**************
+
+
+
+
+package MM_GENERICS_PACK;
+
+import java.io.IOException;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+public class Tablet_Purchase extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
+   
+
+	
+	
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		try {
+			PrintWriter out=response.getWriter();
+			response.setContentType("text/html");
+			
+			Class.forName("oracle.jdbc.driver.OracleDriver");
+			Connection con=DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:ORCL","mohammed","mohammed");
+			
+			String t1=request.getParameter("company");
+			String t2=request.getParameter("tabname");
+			String t3=request.getParameter("pack");
+			String t4=request.getParameter("batch");
+			String t5=request.getParameter("expire");
+			int t6=Integer.parseInt(request.getParameter("mrp"));
+			int t7=Integer.parseInt(request.getParameter("rate"));
+			int t8=Integer.parseInt(request.getParameter("salerate"));
+			
+			
+			CallableStatement ps=con.prepareCall("{call p_insert(?,?,?,?,?,?,?,?)}");
+			
+			ps.setString(1, t1);
+			ps.setString(2, t2);
+			ps.setString(3, t3);
+			ps.setString(4, t4);
+			ps.setString(5, t5);
+			ps.setInt(6, t6);
+			ps.setInt(7, t7);
+			ps.setInt(8, t8);
+			
+			 ps.executeUpdate();
+		if(ps!=null) {
+				out.print("purchase details registered successfully");
+			
+		}
+		
+		else
+		{
+			out.print("purchase details registration failed");
+		}
+			con.close();
+			ps.close();
+			
+			
+			
+		}
+		 catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+}
